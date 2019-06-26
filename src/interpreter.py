@@ -1,20 +1,7 @@
 from enum import Enum
-from token import Token as Token
+from lexer import Lexer as Lexer
 #from operation import Operation as Op
 
-## TOKEN LIST ##
-# Common Token List #
-EOF = Token(("EOF", "EOF", None))
-## OPERATORS
-PLUS = Token(("OPERATOR", "PLUS", "+"))
-NEG = Token(("OPERATOR", "NEG", "-"))
-MULT = Token(("OPERATOR", "MULT", "*"))
-DIV = Token(("OPERATOR", "DIV", "/"))
-MOD = Token(("OPERATOR", "MOD", "%"))
-## TERMS
-INTEGER = Token(("TERM", "INTEGER", 0))
-STRING = Token(("TERM", "STRING", ""))
-# EOF indicates the End-Of-File (aka end of input)
 # INTEGER[], OPERATOR[], CHAR[], EOF
 # types = list(EOF, PLUS, NEG, MULT, DIV, MOD)
 
@@ -36,18 +23,6 @@ class Interpreter(object):
     def error(self):
         raise Exception("Error parsing input")
 
-    def nextPos(self):
-        # Move the "pos" pointer and set the "currentChar" variable
-        self.pos += 1
-        if self.pos > len(self.text) - 1:
-            self.currentChar = None
-        else:
-            self.currentChar = self.text[self.pos]
-
-    def skipWhitespace(self):
-        while self.currentChar is not None and self.currentChar.isspace():
-            self.nextPos()
-
     def integer(self):
         # Returns an (multidigit) integer from input
         result = ""
@@ -55,22 +30,6 @@ class Interpreter(object):
             result += self.currentChar
             self.nextPos()
         return(int(result))
-
-    def getNextToken(self):
-        # Lexical Analyzer
-        # Breaks sentences into tokens.
-        while self.currentChar is not None:
-            if self.currentChar.isspace():
-                self.skipWhitespace()
-                continue
-            if self.currentChar.isdigit():
-                return(INTEGER.copy(self.integer()))
-            elif self.currentChar == '+':
-                self.nextPos()
-                return(PLUS)
-            elif self.currentChar == '-':
-                self.nextPos()
-                return(NEG)
 
         # text = self.text
 
@@ -99,9 +58,6 @@ class Interpreter(object):
         #     token = Token(PLUS, currentChar)
         #     self.pos += 1
         #     return token
-
-            self.error()
-        return(EOF)
 
     def tokenPop(self, tokenType, matchFlag=0):
         # if the token is of the tokenType goto nextToken
