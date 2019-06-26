@@ -1,27 +1,25 @@
-# Token List
+from enum import Enum
+from token import Token as Token
+#from operation import Operation as Op
+
+## TOKEN LIST ##
+# Common Token List #
+EOF = Token(("EOF", "EOF", None))
+## OPERATORS
+PLUS = Token(("OPERATOR", "PLUS", "+"))
+NEG = Token(("OPERATOR", "NEG", "-"))
+MULT = Token(("OPERATOR", "MULT", "*"))
+DIV = Token(("OPERATOR", "DIV", "/"))
+MOD = Token(("OPERATOR", "MOD", "%"))
+## TERMS
+INTEGER = Token(("TERM", "INTEGER", 0))
+STRING = Token(("TERM", "STRING", ""))
 # EOF indicates the End-Of-File (aka end of input)
 # INTEGER[], OPERATOR[], CHAR[], EOF
-INTEGER, PLUS, MINUS, EOF = "INTEGER","PLUS","MINUS","EOF"
+# types = list(EOF, PLUS, NEG, MULT, DIV, MOD)
 
-class Token(object):
-    def __init__(self, type, value):
-        # token type : tokenList[n]
-        self.type = type
-        # token value : [0-9] | + | - | None
-        self.value = value
+_T = ("EOF" "OPERATOR" "TERM")
 
-    def __str__(self):
-        # String form of Object
-        # Examples:
-        #   Token(INTEGER, 2)
-        #   Token(PLUS, '+')
-        return("Token({type}, {value})".format(
-            type=self.type,
-            value=repr(self.value)
-        ))
-
-    def __repr__(self):
-        return(self.__str__())
 
 class Interpreter(object):
     def __init__(self, text):
@@ -30,8 +28,10 @@ class Interpreter(object):
         # Index in input string
         self.pos = 0
         # Type of current token
-        self.currentToken = None
+        self.currentToken = EOF
         self.currentChar = self.text[self.pos]
+        # Input Buffer
+        self.buffer = ()
 
     def error(self):
         raise Exception("Error parsing input")
@@ -54,7 +54,7 @@ class Interpreter(object):
         while self.currentChar is not None and self.currentChar.isdigit():
             result += self.currentChar
             self.nextPos()
-        return int(result)
+        return(int(result))
 
     def getNextToken(self):
         # Lexical Analyzer
@@ -64,13 +64,13 @@ class Interpreter(object):
                 self.skipWhitespace()
                 continue
             if self.currentChar.isdigit():
-                return(Token(INTEGER, self.integer()))
+                return(INTEGER.copy(self.integer()))
             elif self.currentChar == '+':
                 self.nextPos()
-                return(Token(PLUS, '+'))
+                return(PLUS)
             elif self.currentChar == '-':
                 self.nextPos()
-                return(Token(MINUS, '-'))
+                return(NEG)
 
         # text = self.text
 
@@ -101,19 +101,18 @@ class Interpreter(object):
         #     return token
 
             self.error()
-        return(Token(EOF, None))
+        return(EOF)
 
-    def tokenPop(self, tokenType):
+    def tokenPop(self, tokenType, matchFlag=0):
         # if the token is of the tokenType goto nextToken
         # else raise error
-        if self.currentToken.type == tokenType:
+        if self.currentToken.match(tokenType, matchFlag):
             self.currentToken = self.getNextToken()
         else:
             self.error()
 
     def expr(self):
         # expr -> INTEGER PLUS INTEGER
-
         # set current token to the first token from input
         self.currentToken = self.getNextToken()
 
@@ -123,17 +122,23 @@ class Interpreter(object):
 
         # we expect the current token to be a '+'
         op = self.currentToken
-        if op.type == PLUS:
-            self.tokenPop(PLUS)
+        if op == PLUS:
+            self.tokenPop(PLUS, 1)
         else:
-            self.tokenPop(MINUS)
+            self.tokenPop(NEG, 1)
 
         # we expect the current token to be a digit
         right = self.currentToken
+
         self.tokenPop(INTEGER)
         # after the above call the currentToken is set to EOF token
 
-        if op.type == PLUS:
+        while self.currentToken != EOF:
+            if self.currentToken.tokenType({"type":"OPERATOR"}, 0) and not left.tokenType({"type":"TERM"}):
+                self.error()
+            else:
+                op = self.currentToken
+        if op == PLUS:
             result = left.value + right.value
         else:
             result = left.value - right.value
