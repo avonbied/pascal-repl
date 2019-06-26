@@ -1,14 +1,30 @@
 # -*- coding: utf-8 -*-
 """Token Class
 
-This class contains information for 
+This class contains information for token patterns.  Instances
+  will have a type and value.  The value property is a sequence
+  of related characters.  This relation is defined elsewhere.
+
+Input: "<type>", "<value>"
+Output: {type:<str>, value:<str>}
 """
 class Token(object):
     def __init__(self, type, value):
         # token type : tokenTypes[n] ie PLUS, MINUS, etc.
-        self.type = type
+        self._type = type
         # token value : [0-9] | + | - | None
-        self.value = value
+        self._value = value
+
+    @property    
+    def value(self):
+        return(self._value)
+    
+    @property
+    def type(self):
+        return(self._type)
+
+    def __eq__(self, otherObj):
+        return(self._type == otherObj.type and self._value == otherObj.value)
 
     def __str__(self):
         # String form of Object
@@ -16,19 +32,13 @@ class Token(object):
         #   Token(LITERAL, 2)
         #   Token(OPERATOR, '+')
         return("Token({type}, {value})".format(
-            type=self.type,
-            value=repr(self.value)
+            type=self._type,
+            value=repr(self._value)
         ))
 
     def __repr__(self):
         return(self.__str__())
-    
-    def __eq__(self, otherObj):
-        return(self.type == otherObj.type and self.value == otherObj.value)
-
-    def isType(self, typeObj):
-        return(self.type == typeObj.type)
 
     def copy(self, value):
-        result = Token(self.type, value)
+        result = Token(self._type, value)
         return(result)
