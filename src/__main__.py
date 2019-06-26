@@ -1,5 +1,6 @@
 # Imports the Interpreter logic
-from interpreter import Interpreter as Interpreter
+from .interpreter import Interpreter as Interpreter
+from .lexer import Lexer as Lexer
 
 def main():
     while True:
@@ -9,8 +10,10 @@ def main():
             break
         if not text:
             continue
-        interpeter = Interpreter(text)
-        result = interpeter.expr()
+        lexer = Lexer(text)
+        lexer.analyze()
+        interpreter = Interpreter(lexer)
+        result = interpreter.expr()
         print(result)
 
 if __name__ == "__main__":
