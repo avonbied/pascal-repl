@@ -29,3 +29,6 @@ class TestLexer(unittest.TestCase):
         self.assertEqual(self.test_lexer, Lexer(self.test_string))
         self.assertNotEqual(self.test_lexer, None)
         self.assertNotEqual(self.test_lexer, Lexer(""))
+
+    def test_sizeof(self):
+        self.assertEqual(type(len(self.test_lexer)), type(0))

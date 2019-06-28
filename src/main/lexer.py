@@ -20,7 +20,6 @@ OP = Token("OPERATOR", '+')
 LITERAL = Token("LITERAL", "0")
 ID = Token("IDENTIFIER", "0")
 #NOTE: STR implementation isn't correct. Should start at '"' char but doesn't. Is more like IDENTIFIER
-
 class Lexer(object):
     def __init__(self, symbolSeq):
         # Client input string
@@ -30,7 +29,7 @@ class Lexer(object):
         # Token Buffer
         self.__buffer = ()
         # Auto Analyzed
-        self.analyze()
+        self.__analyze()
 
     @property
     def buffer(self):
@@ -97,7 +96,7 @@ class Lexer(object):
     #   }
     #   EOF => buffer
     # }
-    def analyze(self):
+    def __analyze(self):
         # Lexical Analyzer
         # Breaks sentences into tokens.
         seq = self.__symbolSeq
@@ -126,5 +125,5 @@ class Lexer(object):
             return(False)
         return(self.buffer == otherObj.buffer)
 
-    def __sizeof__(self):
+    def __len__(self):
         return(len(self.buffer))
