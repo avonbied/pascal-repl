@@ -23,8 +23,18 @@ class Token(object):
     def type(self):
         return(self._type)
 
+    def copy(self, value):
+        if value is None:
+            result = Token(self.type, self._value)
+            return(result)
+        else:
+            result = Token(self.type, value)
+            return(result)
+
     def __eq__(self, otherObj):
-        return(self._type == otherObj.type and self._value == otherObj.value)
+        if otherObj is None:
+            return(False)
+        return(self.type == otherObj.type and self.value == otherObj.value)
 
     def __str__(self):
         # String form of Object
@@ -32,17 +42,9 @@ class Token(object):
         #   Token(LITERAL, 2)
         #   Token(OPERATOR, '+')
         return("Token({type}, {value})".format(
-            type=self._type,
-            value=repr(self._value)
+            type=self.type,
+            value=self.value
         ))
 
     def __repr__(self):
         return(self.__str__())
-
-    def copy(self, value):
-        if value is not None:
-            result = Token(self._type, value)
-            return(result)
-        else:
-            result = Token(self._type, self._value)
-            return(result)

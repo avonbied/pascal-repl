@@ -28,18 +28,13 @@ class TestToken(unittest.TestCase):
         self.assertEqual(type(test_token.value), type(value_string))
 
     def test_equal(self):
-        type_string, value_string, string2 = rString(10), rString(10), rString(10)
+        type_string, value_string = rString(10), rString(10)
         test_token = Token(type_string, value_string)
-        test_token_clone = Token(type_string, value_string)
-        test_token2 = Token(string2, value_string)
-        test_token3 = Token(type_string, string2)
         # Tests
-        self.assertEqual(test_token == Token(type_string, value_string), True)
-        self.assertEqual(test_token == test_token_clone, True)
-        self.assertNotEqual(test_token == None, True)
-        self.assertNotEqual(test_token == test_token2, True)
-        self.assertNotEqual(test_token == test_token3, True)
-        self.assertNotEqual(test_token2 == test_token3, True)
+        self.assertTrue(test_token == Token(type_string, value_string))
+        self.assertFalse(test_token == None)
+        self.assertFalse(test_token == Token("type", value_string))
+        self.assertFalse(test_token == Token(type_string, "value"))
 
     def test_string(self):
         type_string, value_string = rString(10), rString(10)
@@ -53,11 +48,11 @@ class TestToken(unittest.TestCase):
         self.assertNotEqual(str(test_token), "Token(, )")
 
     def test_copy(self):
-        type_string, value_string, string2 = rString(10), rString(10), rString(10)
+        type_string, value_string = rString(10), rString(10)
         test_token = Token(type_string, value_string)
-        test_token2 = Token(type_string, string2)
+        test_token2 = Token(type_string, "value")
         # Tests
         self.assertEqual(test_token, test_token.copy(None))
         self.assertEqual(test_token, test_token2.copy(value_string))
-        self.assertEqual(test_token2, test_token.copy(string2))
+        self.assertEqual(test_token2, test_token.copy("value"))
         self.assertNotEqual(test_token, test_token2.copy(None))
