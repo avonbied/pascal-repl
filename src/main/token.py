@@ -40,5 +40,9 @@ class Token(object):
         return(self.__str__())
 
     def copy(self, value):
-        result = Token(self._type, value)
-        return(result)
+        if value is not None:
+            result = Token(self._type, value)
+            return(result)
+        else:
+            result = Token(self._type, self._value)
+            return(result)

@@ -9,7 +9,7 @@ This class is a wrapper for the lexical analysis process
 Input: "[<char>[, <char>]*]"
 Output: ([<Token>, ]*<Token:EOF>)
 """
-from token import Token as Token
+from .token import Token as Token
 
 ## TOKEN LIST ##
 # EOF indicates the End-Of-File (aka end of input)

@@ -1,3 +1,1 @@
-from .interpreter import *
-from .lexer import *
-from .token import *
+__all__ = ["main", "test"]
