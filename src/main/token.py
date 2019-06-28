@@ -11,21 +11,21 @@ Output: {type:<str>, value:<str>}
 class Token(object):
     def __init__(self, type, value):
         # token type : tokenTypes[n] ie PLUS, MINUS, etc.
-        self._type = type
+        self.__type = type if type is not None else ""
         # token value : [0-9] | + | - | None
-        self._value = value
+        self.__value = value if value is not None else ""
 
     @property    
     def value(self):
-        return(self._value)
+        return(self.__value)
     
     @property
     def type(self):
-        return(self._type)
+        return(self.__type)
 
     def copy(self, value):
         if value is None:
-            result = Token(self.type, self._value)
+            result = Token(self.type, self.value)
             return(result)
         else:
             result = Token(self.type, value)
