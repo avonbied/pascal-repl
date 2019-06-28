@@ -3,6 +3,7 @@ from .input_gen import rString
 from ..main.lexer import Lexer
 
 class TestLexer(unittest.TestCase):
+
     def setUp(self):
         self.test_string = rString(10)
         self.test_lexer, self.test_lexer2 = Lexer(self.test_string), Lexer(rString(10))
@@ -31,4 +32,5 @@ class TestLexer(unittest.TestCase):
         self.assertNotEqual(self.test_lexer, Lexer(""))
 
     def test_sizeof(self):
+        self.assertEqual(len(self.test_lexer), len(self.test_lexer.buffer))
         self.assertEqual(type(len(self.test_lexer)), type(0))

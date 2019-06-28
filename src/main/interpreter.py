@@ -17,8 +17,6 @@ class Interpreter(object):
         self.pos = 0
         # Type of current Token
         self.currentToken = None
-        # Input Buffer
-        self.buffer = ()
 
     def error(self):
         raise Exception("Error parsing input")
