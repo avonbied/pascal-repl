@@ -18,6 +18,7 @@ EOF = Token("EOF", None)
 OP = Token("OPERATOR", '+')
 # LITERALS supported : (INT, STR)
 LITERAL = Token("LITERAL", "0")
+ID = Token("IDENTIFIER", "0")
 #NOTE: STR implementation isn't correct. Should start at '"' char but doesn't. Is more like IDENTIFIER
 
 class Lexer(object):
@@ -27,11 +28,13 @@ class Lexer(object):
         # Index in input string
         self.__pos = 0 # type:Int
         # Token Buffer
-        self._buffer = ()
+        self.__buffer = ()
+        # Auto Analyzed
+        self.analyze()
 
     @property
     def buffer(self):
-        return(self._buffer)
+        return(self.__buffer)
 
     @property
     def symbolSeq(self):
@@ -40,42 +43,50 @@ class Lexer(object):
     def error(self):
         raise Exception("Invalid Syntax")
 
-    @property
     def __isFull(self):
-        return(bool(len(self.__symbolSeq)))
+        return(len(self.__symbolSeq) > 0)
 
-    def __hasNextChar(self): # type:Bool
-        # Checks if it's safe to look-ahead
-        return(not (self.__pos > len(self.symbolSeq) - 1))
+    @property
+    def current_char(self): # type:Char
+        try:
+            return(self.symbolSeq[0])
+        except:
+            print("FAILED: current_char")
 
-    def __getChar(self): # type:Char
-        return(self.symbolSeq[self.__pos])
+    def _peekChar(self): # type:Char
+        if self.__pos+1 > len(self.__symbolSeq):
+            return(self.symbolSeq[self.__pos+1])
+        self.error()
 
-    def __nextChar(self):
-        # Move the "pos" pointer
-        self.__pos += 1
-
-    def __pushToken(self, token):
+    def _pushToken(self, token):
         # Adds Token to the end of the Buffer
-        self._buffer += (token,)
+        self.__buffer += (token,)
 
     # function(sequence)
     # : sequence {
-    #   while char is type -> {
-    #     char => term
-    #     if hasNext : { nextChar } ; { EXIT }
+    #   char => term
+    #   while nextChar is type -> {
+    #     nextChar => term
+    #     if hasNext : { NEXT } ; { EXIT }
     #   }
     # }
-    def __formTerm(self):
-        char = self.__getChar()
-        term = ""
-        while char.isdigit():
-            term += char
-            if self.__hasNextChar():
-                self.__nextChar()
-            else:
-                break
-        return(term)
+    def __formTerm(self, seq):
+        term, pos = "", 0
+        if seq[0].isdigit():
+            while seq[0].isdigit():
+                term += seq[0]
+                pos += 1
+                seq = seq[1:]
+                if not len(seq) > 0:
+                    break
+        else:
+            while seq[0].isalnum():
+                term += seq[0]
+                pos += 1
+                seq = seq[1:]
+                if not len(seq) > 0:
+                    break
+        return(term, pos)
 
     # function(sequence)
     # : buffer {
@@ -89,27 +100,31 @@ class Lexer(object):
     def analyze(self):
         # Lexical Analyzer
         # Breaks sentences into tokens.
-        while self.__isFull:
-            current_char = self.__getChar()
-            
-            if current_char.isspace():
-                pass
-            elif current_char.isdigit():
-                term = self.__formTerm()
-                self.__pushToken(LITERAL.copy(term))
-            elif current_char in "+-/*%":
-                self.__pushToken(OP.copy(current_char))
-
-            if self.__hasNextChar():
-                self.__nextChar()
-            else:
+        seq = self.__symbolSeq
+        while len(seq) > 0:
+            if not len(seq) > 0:
                 break
-        self.__pushToken(EOF)
+            if seq[0].isdigit():
+                (term, pos) = self.__formTerm(seq)
+                self._pushToken(LITERAL.copy(term))
+                seq = seq[pos:]
+                continue
+            elif seq[0].isalpha():
+                (term, pos) = self.__formTerm(seq)
+                self._pushToken(ID.copy(term))
+                seq = seq[pos:]
+                continue
+            elif seq[0] in "+-/*%":
+                self._pushToken(OP.copy(seq[0]))
+                seq = seq[1:]
+            else:
+                seq = seq[1:]
+        self._pushToken(EOF)
 
     def __eq__(self, otherObj):
         if otherObj is None:
             return(False)
-        return(self.symbolSeq == otherObj.symbolSeq)
+        return(self.buffer == otherObj.buffer)
 
     def __sizeof__(self):
         return(len(self.buffer))
