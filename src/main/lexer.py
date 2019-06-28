@@ -21,24 +21,32 @@ LITERAL = Token("LITERAL", "0")
 #NOTE: STR implementation isn't correct. Should start at '"' char but doesn't. Is more like IDENTIFIER
 
 class Lexer(object):
-    def __init__(self, textStream):
+    def __init__(self, symbolSeq):
         # Client input string
-        self._text = textStream
+        self._symbolSeq = symbolSeq
         # Index in input string
         self._pos = 0 # type:Int
         # Token Buffer
         self._buffer = ()
 
+    @property
+    def buffer(self):
+        return(self._buffer)
+
+    @property
+    def symbolSeq(self):
+        return(self._symbolSeq)
+
     def error(self):
         raise Exception("Invalid Syntax")
 
     def _getChar(self): # type:Char
-        return(self._text[self._pos])
+        return(self._symbolSeq[self._pos])
 
     def _nextChar(self):
         # Move the "pos" pointer and return <Char> at that position
         self._pos += 1
-        if self._pos > len(self._text)-1:
+        if self._pos > len(self._symbolSeq)-1:
             return(None)
         return(self._getChar())
 
@@ -46,6 +54,7 @@ class Lexer(object):
         char = self._getChar()
         while char is not None and char.isspace():
             char = self._nextChar()
+        return(char)
 
     def _formTerm(self):
         char = self._getChar()
@@ -58,13 +67,21 @@ class Lexer(object):
             while char is not None and char.isalnum():
                 result += char
                 char = self._nextChar()
-        return(result)
+        print(result)
+        return(result, char)
 
     def _pushToken(self, token):
-        while token != EOF:
-            self._buffer += (token,)
         self._buffer += (token,)
 
+    # function(sequence)
+    # : buffer {
+    #   while isFull {
+    #     if Space : { nextChar }
+    #     if Digit : { createTerm => buffer ; nextChar }
+    #     if Op : { OP => buffer ; nextChar }
+    #   }
+    #   else is None : { EOF => buffer ; EXIT }
+    # }
     def analyze(self):
         # Current Char Data
         currentChar = self._getChar() # type:Char
@@ -73,20 +90,21 @@ class Lexer(object):
         # Breaks sentences into tokens.
         while currentChar is not None:
             if currentChar.isspace():
-                self._skipSpace()
+                currentChar = self._skipSpace()
             elif currentChar.isalnum():
-                self._pushToken(LITERAL.copy(self._formTerm()))
-                currentChar = self._getChar()
+                (term, currentChar) = self._formTerm()
+                self._pushToken(LITERAL.copy(term))
             elif currentChar in "+-/*%":
                 self._pushToken(OP.copy(currentChar))
-                currentChar = self._getChar()
+                currentChar = self._nextChar()
             else:
                 self.error()
         self._pushToken(EOF)
 
-    @property
-    def buffer(self):
-        return(self._buffer)
+    def __eq__(self, otherObj):
+        if otherObj is None:
+            return(False)
+        return(self._symbolSeq == otherObj.symbolSeq)
 
     def __sizeof__(self):
-        return(len(self._buffer))
+        return(len(self.buffer))
