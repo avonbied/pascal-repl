@@ -18,7 +18,7 @@
   - `doc/` : contains all the usage documentation, the project models, and the module APIs.
   - `src/` : contains the runnable package in all of its entirety which has the following modules:
     - `debug/` : this module contains all of the logging and debug reporting logic
-    - `main/` : this module contains the backend logic for the interpreter, parser, and lexer 
+    - `core/` : this module contains the backend logic for the interpreter, parser, and lexer 
     - `io/` : this module contains the frontend interface for users; :exclamation: NOTE `io` is a temp name
   - `test/` : contains the conformity and usability tests for each module
 
