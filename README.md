@@ -9,15 +9,21 @@
   ```
   doc/
   src/
+    core/
     debug/
-    interpreter/
     io/
-  test/		
+  test/
   ```
 
   - `doc/` : contains all the usage documentation, the project models, and the module APIs.
   - `src/` : contains the runnable package in all of its entirety which has the following modules:
     - `core/` : this module contains the backend logic for the interpreter, parser, and lexer 
-    - `debug/` : this module contains all of the logging and debug reporting logic
+    - `debug/` : this module contains all of the unit tests and the likes
     - `io/` : this module contains the frontend interface for users; :exclamation: NOTE `io` is a temp name
   - `test/` : contains the conformity and usability tests for each module
+
+## Running the Package
+
+  There are three way to utilize the package:
+  1. Interactively via a cli : `python -m pascal-repl`
+  

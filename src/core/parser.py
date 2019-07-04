@@ -10,7 +10,9 @@ This class is a wrapper to validate the processed input
 Input: <Lexer>
 Output: <ParseFlag>
 """
-class Parser(object):
+from .errorSender import ErrorSender as ErrorSender
+
+class Parser(ErrorSender):
     def __init__(self, buffer):
         self.__list = buffer
         self.check()

@@ -8,33 +8,43 @@ This class contains information for token patterns.  Instances
 Input: "<type>", "<value>"
 Output: {type:<str>, value:<str>}
 """
-class Token(object):
-    def __init__(self, type, value):
+from .errorSender import ErrorSender as ErrorSender
+
+class Token(Sender):
+    def __init__(self, type, value, log):
         # token type : tokenTypes[n] ie PLUS, MINUS, etc.
         self.__type = type if type is not None else ""
         # token value : [0-9] | + | - | None
         self.__value = value if value is not None else ""
 
-    @property    
+        # Debug log reference
+        self.__log = log
+
+    @property
     def value(self):
         return(self.__value)
-    
+
     @property
     def type(self):
         return(self.__type)
+
+    def __error(self, msg, info):
+        self.__log.log(("Token", msg, info))
 
     def copy(self, value):
         if value is None:
             result = Token(self.type, self.value)
             return(result)
-        else:
-            result = Token(self.type, value)
-            return(result)
+        result = Token(self.type, value)
+        return(result)
 
     def __eq__(self, otherObj):
         if otherObj is None:
             return(False)
-        return(self.type == otherObj.type and self.value == otherObj.value)
+        try:
+            return(self.type == otherObj.type and self.value == otherObj.value)
+        except:
+            self.__error("Types can't be compared", {"value1":self, "value2":otherObj})
 
     def __str__(self):
         # String form of Object

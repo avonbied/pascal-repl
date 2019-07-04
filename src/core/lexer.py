@@ -9,6 +9,7 @@ This class is a wrapper for the lexical analysis process
 Input: "[<char>[, <char>]*]"
 Output: ([<Token>, ]*<Token:EOF>)
 """
+from .errorSender import ErrorSender as ErrorSender
 from .token import Token as Token
 
 ## TOKEN LIST ##
@@ -20,7 +21,7 @@ OP = Token("OPERATOR", '+')
 LITERAL = Token("LITERAL", "0")
 ID = Token("IDENTIFIER", "0")
 #NOTE: STR implementation isn't correct. Should start at '"' char but doesn't. Is more like IDENTIFIER
-class Lexer(object):
+class Lexer(ErrorSender):
     def __init__(self, symbolSeq):
         # Client input string
         self.__symbolSeq = symbolSeq if symbolSeq is not None else ""
@@ -39,18 +40,18 @@ class Lexer(object):
     def symbolSeq(self):
         return(self.__symbolSeq)
 
-    def error(self):
+    @property
+    def current_char(self): # type:Char
+        return(self.symbolSeq[self.__pos])
+
+    """    def error(self):
         raise Exception("Invalid Syntax")
+    """
 
     def __isFull(self):
         return(len(self.__symbolSeq) > 0)
 
-    @property
-    def current_char(self): # type:Char
-        try:
-            return(self.symbolSeq[0])
-        except:
-            print("FAILED: current_char")
+        return(self.symbolSeq[0])
 
     def _peekChar(self): # type:Char
         if self.__pos+1 > len(self.__symbolSeq):
@@ -123,7 +124,10 @@ class Lexer(object):
     def __eq__(self, otherObj):
         if otherObj is None:
             return(False)
-        return(self.buffer == otherObj.buffer)
+        try:
+            return(self.buffer == otherObj.buffer)
+        else:
+            self._error("Lexer", "Types can't be compared", {"value1":self, "value2":otherObj})
 
     def __len__(self):
         return(len(self.buffer))

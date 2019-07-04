@@ -3,13 +3,15 @@
 
 This class is
 """
+from .errorSender import ErrorSender as ErrorSender
+
 from enum import Enum
 #from operation import Operation as Op
 # INTEGER[], OPERATOR[], CHAR[], EOF
 
 _T = ("EOF" "OPERATOR" "LITERAL")
 
-class Interpreter(object):
+class Interpreter(ErrorSender):
     def __init__(self, lexer):
         # Token Sequence
         self.list = lexer.buffer

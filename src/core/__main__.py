@@ -1,6 +1,7 @@
 # Imports the Interpreter logic
 from .interpreter import Interpreter as Interpreter
 from .lexer import Lexer as Lexer
+from .logger import Logger as Logger
 
 def main():
     while True:
