@@ -1,6 +1,6 @@
 import unittest
 from .input_gen import rString
-from ..main.token import Token
+from ..core.token import Token
 
 class TestToken(unittest.TestCase):
 

@@ -1,7 +1,7 @@
 import unittest
 from .input_gen import rString
-from ..main.lexer import Lexer
-from ..main.parser import Parser
+from ..core.lexer import Lexer
+from ..core.parser import Parser
 
 class TestParser(unittest.TestCase):
     def setUp(self):

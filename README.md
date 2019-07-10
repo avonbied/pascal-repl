@@ -9,17 +9,16 @@
   ```
   doc/
   src/
-    core/
-    debug/
-    io/
+    main/
+    test/
   test/
   ```
 
   - `doc/` : contains all the usage documentation, the project models, and the module APIs.
   - `src/` : contains the runnable package in all of its entirety which has the following modules:
-    - `core/` : this module contains the backend logic for the interpreter, parser, and lexer 
-    - `debug/` : this module contains all of the unit tests and the likes
-    - `io/` : this module contains the frontend interface for users; :exclamation: NOTE `io` is a temp name
+    - `main/` : this module contains the backend logic for the interpreter, parser, and lexer.  It
+       also contains the entry point for running the program. 
+    - `test/` : this module contains all of the unit tests and the likes
   - `test/` : contains the conformity and usability tests for each module
 
 ## Running the Package

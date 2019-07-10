@@ -7,15 +7,16 @@ This class is a wrapper to validate the processed input
   a _Pass_ ParseFlag is outputted, otherwise a _Fail_
   ParseFlag is outputted.
 
-Input: <Lexer>
+Input: <Tuple[Token]>
 Output: <ParseFlag>
 """
-from .errorSender import ErrorSender as ErrorSender
-
-class Parser(ErrorSender):
-    def __init__(self, buffer):
-        self.__list = buffer
+class Parser(object):
+    def __init__(self, log: object):
+        self.__list = ()
         self.check()
+
+        # Debug log reference
+        self.__log = log
 
     def check(self):
         pos = 0
@@ -23,3 +24,6 @@ class Parser(ErrorSender):
             print(True)
             pos += 1
         print("Done")
+
+    def __str__(self) -> str:
+        return("")

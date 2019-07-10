@@ -1,6 +1,6 @@
 import unittest
 from .input_gen import rString
-from ..main.lexer import Lexer
+from ..core.lexer import Lexer
 
 class TestLexer(unittest.TestCase):
 

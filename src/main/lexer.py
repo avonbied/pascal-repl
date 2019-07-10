@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ # -*- coding: utf-8 -*-
 """Lexer Class
 
 This class is a wrapper for the lexical analysis process
@@ -9,58 +9,54 @@ This class is a wrapper for the lexical analysis process
 Input: "[<char>[, <char>]*]"
 Output: ([<Token>, ]*<Token:EOF>)
 """
-from .errorSender import ErrorSender as ErrorSender
 from .token import Token as Token
 
 ## TOKEN LIST ##
-# EOF indicates the End-Of-File (aka end of input)
-EOF = Token("EOF", None)
-# OPERATORS supported : (PLUS, NEG, MULT, DIV, MOD)
-OP = Token("OPERATOR", '+')
-# LITERALS supported : (INT, STR)
-LITERAL = Token("LITERAL", "0")
-ID = Token("IDENTIFIER", "0")
+template = {
+    # EOF indicates the End-Of-File (aka end of input)
+    "EOF": Token("EOF", None),
+    # OPERATORS supported : (PLUS, NEG, MULT, DIV, MOD)
+    "OP": Token("OPERATOR", '+'),
+    # LITERALS supported : (INT, STR)
+    "LIT": [Token("LIT_INT", "0"), Token("LIT_FLOAT", "0.0")],
+    "ID": Token("IDENTIFIER", "")
+}
 #NOTE: STR implementation isn't correct. Should start at '"' char but doesn't. Is more like IDENTIFIER
-class Lexer(ErrorSender):
-    def __init__(self, symbolSeq):
-        # Client input string
-        self.__symbolSeq = symbolSeq if symbolSeq is not None else ""
+class Lexer(object):
+    def __init__(self, log: object):
         # Index in input string
         self.__pos = 0 # type:Int
         # Token Buffer
         self.__buffer = ()
-        # Auto Analyzed
-        self.__analyze()
 
+        # Debug log reference
+        self.__log = log
+
+    # -> Tuple[Token]
     @property
-    def buffer(self):
+    def buffer(self) -> tuple:
         return(self.__buffer)
 
-    @property
-    def symbolSeq(self):
-        return(self.__symbolSeq)
+    # raise Exception("Invalid Syntax")
+    def __error(self, msg: str, info: str):
+        self.__log.log(("Lexer", msg, info))
 
-    @property
-    def current_char(self): # type:Char
-        return(self.symbolSeq[self.__pos])
-
-    """    def error(self):
-        raise Exception("Invalid Syntax")
-    """
-
-    def __isFull(self):
-        return(len(self.__symbolSeq) > 0)
-
-        return(self.symbolSeq[0])
-
-    def _peekChar(self): # type:Char
-        if self.__pos+1 > len(self.__symbolSeq):
-            return(self.symbolSeq[self.__pos+1])
-        self.error()
-
-    def _pushToken(self, token):
+    # Token ->
+    def __pushToken(self, token: object):
         # Adds Token to the end of the Buffer
         self.__buffer += (token,)
+
+    def __clearBuffer(self):
+        self.__buffer = ()
+
+    def __formNumeric(self, seq: str) -> str:
+        pass
+
+    def __formString(self, seq:str) -> str:
+        pass
+
+    def __formId(self, seq:str) -> str:
+        pass
 
     # function(sequence)
     # : sequence {
@@ -70,7 +66,8 @@ class Lexer(ErrorSender):
     #     if hasNext : { NEXT } ; { EXIT }
     #   }
     # }
-    def __formTerm(self, seq):
+    # str -> Tuple(str, int)
+    def __formTerm(self, seq: str) -> tuple:
         term, pos = "", 0
         if seq[0].isdigit():
             while seq[0].isdigit():
@@ -97,37 +94,38 @@ class Lexer(ErrorSender):
     #   }
     #   EOF => buffer
     # }
-    def __analyze(self):
+    def analyze(self, symbolSeq: str):
         # Lexical Analyzer
         # Breaks sentences into tokens.
-        seq = self.__symbolSeq
+        # Client input string
+        seq = symbolSeq if symbolSeq is not None else ""
         while len(seq) > 0:
             if not len(seq) > 0:
                 break
             if seq[0].isdigit():
                 (term, pos) = self.__formTerm(seq)
-                self._pushToken(LITERAL.copy(term))
+                self.__pushToken(template["Lit"][0].copy(term))
                 seq = seq[pos:]
                 continue
             elif seq[0].isalpha():
                 (term, pos) = self.__formTerm(seq)
-                self._pushToken(ID.copy(term))
+                self.__pushToken(ID.copy(term))
                 seq = seq[pos:]
                 continue
             elif seq[0] in "+-/*%":
-                self._pushToken(OP.copy(seq[0]))
+                self.__pushToken(template["OP"].copy(seq[0]))
                 seq = seq[1:]
             else:
                 seq = seq[1:]
-        self._pushToken(EOF)
+        self._pushToken(template["EOF"])
 
-    def __eq__(self, otherObj):
+    def __eq__(self, otherObj: object) -> bool:
         if otherObj is None:
             return(False)
         try:
             return(self.buffer == otherObj.buffer)
         else:
-            self._error("Lexer", "Types can't be compared", {"value1":self, "value2":otherObj})
+            self.__error("Types can't be compared", {"value1":self, "value2":otherObj})
 
-    def __len__(self):
+    def __len__(self) -> int:
         return(len(self.buffer))
