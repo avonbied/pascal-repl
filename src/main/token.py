@@ -12,7 +12,7 @@ class Token(object):
     def __init__(self, type: str, value: str):
         # token type : tokenTypes[n] ie PLUS, MINUS, etc.
         self.__type = type if type is not None else ""
-        # token value : [0-9] | + | - | None
+        # token value : [0-9] | + | -
         self.__value = value if value is not None else ""
 
     @property

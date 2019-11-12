@@ -4,11 +4,11 @@
 
 """
 class LogItem(object):
-    def __init__(self, logInfo: tuple):
-        self.level = logInfo[0]
-        self.sender = logInfo[1]
-        self.msg = logInfo[2]
-        self.info = logInfo[3]
+    def __init__(self, logLevel:int, sender:str, msg:str, info:str):
+        self.level = logLevel
+        self.sender = sender
+        self.msg = msg
+        self.info = info
 
     def __str__(self):
         return("LogItem[ Warning Level:{lvl} From:{sender}, {msg}\t{info}".format(
@@ -22,8 +22,8 @@ class Logger(object):
     def __init__(self):
         self.__log = []
 
-    def log(self, logInfo):
-        self.__log.append(LogItem(logInfo))
+    def log(self, logLevel:int, sender:str, msg:str, info:str):
+        self.__log.append(LogItem(logLevel, sender, msg, info))
 
     def getLog(self):
         return(self.__log)

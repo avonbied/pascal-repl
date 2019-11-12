@@ -1,4 +1,4 @@
- # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Lexer Class
 
 This class is a wrapper for the lexical analysis process
@@ -18,7 +18,7 @@ template = {
     # OPERATORS supported : (PLUS, NEG, MULT, DIV, MOD)
     "OP": Token("OPERATOR", '+'),
     # LITERALS supported : (INT, STR)
-    "LIT": [Token("LIT_INT", "0"), Token("LIT_FLOAT", "0.0")],
+    "LIT": [Token("LIT_INT", "0"), Token("LIT_FLOAT", "0.0"), Token("STRING","\"\"")],
     "ID": Token("IDENTIFIER", "")
 }
 #NOTE: STR implementation isn't correct. Should start at '"' char but doesn't. Is more like IDENTIFIER
@@ -32,14 +32,18 @@ class Lexer(object):
         # Debug log reference
         self.__log = log
 
-    # -> Tuple[Token]
+    # -> Tuple(Token)
     @property
     def buffer(self) -> tuple:
         return(self.__buffer)
 
     # raise Exception("Invalid Syntax")
-    def __error(self, msg: str, info: str):
-        self.__log.log(("Lexer", msg, info))
+    def __error(self, msg:str, info:object):
+        self.__log.log(0, msg, info, sender="Lexer")
+        raise Exception("Lexer")
+
+    def __warn(self, msg:str, info:object):
+        pass
 
     # Token ->
     def __pushToken(self, token: object):
@@ -49,14 +53,45 @@ class Lexer(object):
     def __clearBuffer(self):
         self.__buffer = ()
 
-    def __formNumeric(self, seq: str) -> str:
-        pass
+    # str -> Tuple(str, int)
+    def __formNumeric(self, seq: str) -> tuple:
+        result, pos = "", 0
+        while seq[0].isdigit():
+            if seq[1] == '.':
+                result += seq[0:2]
+                if not seq[2].isdigit():
+                    result += '0'
+                seq = seq[2:]
+                pos += 2
+                continue
+            result += seq[0]
+            seq = seq[1:]
+            pos += 1
+        return(result, pos)
 
-    def __formString(self, seq:str) -> str:
-        pass
+    # str -> Tuple(str, int)
+    def __formString(self, seq:str) -> tuple:
+        # Assumes no movement from STRING_START established during check
+        char = seq[0]
+        seq = seq[1:]
+        result, pos = "", 1
+        while seq[0] != char and len(seq) != 0:
+            result += seq[0]
+            seq = seq[1:]
+            pos += 1
+        if seq[0] != char:
+            self.__error("String delimiter unmatched", {"pos":pos,"string":seq})
+        pos += 1
+        return(result, pos)
 
-    def __formId(self, seq:str) -> str:
-        pass
+    # str -> Tuple(str, int)
+    def __formId(self, seq:str) -> tuple:
+        result, pos = "", 0
+        while seq[0].isalnum():
+            result += seq[0]
+            seq = seq[1:]
+            pos += 1
+        return(result, pos)
 
     # function(sequence)
     # : sequence {
@@ -100,23 +135,22 @@ class Lexer(object):
         # Client input string
         seq = symbolSeq if symbolSeq is not None else ""
         while len(seq) > 0:
-            if not len(seq) > 0:
-                break
+            pos = 1
             if seq[0].isdigit():
-                (term, pos) = self.__formTerm(seq)
-                self.__pushToken(template["Lit"][0].copy(term))
-                seq = seq[pos:]
-                continue
+                term, pos = self.__formNumeric(seq)
+                if term.contains('.'):
+                    self.__pushToken(template["Lit"][1].copy(term))
+                else:
+                    self.__pushToken(template["Lit"][0].copy(term))
             elif seq[0].isalpha():
-                (term, pos) = self.__formTerm(seq)
-                self.__pushToken(ID.copy(term))
-                seq = seq[pos:]
-                continue
+                term, pos = self.__formId(seq)
+                self.__pushToken(template["ID"].copy(term))
+            elif seq[0] == '"' or seq[0] == '\'':
+                term, pos = self.__formString(seq)
+                self.__pushToken(template["ID"][2].copy(term))
             elif seq[0] in "+-/*%":
                 self.__pushToken(template["OP"].copy(seq[0]))
-                seq = seq[1:]
-            else:
-                seq = seq[1:]
+            seq = seq[pos:]
         self._pushToken(template["EOF"])
 
     def __eq__(self, otherObj: object) -> bool:
